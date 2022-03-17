@@ -1,0 +1,28 @@
+{
+  "name": "gather-tag-game",
+  "version": "1.0.0",
+  "description": "* env vars   * GATHER_API_KEY   * GATHER_SPACE_ID",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r ts-node/register src/app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lapras-inc/gather-tag-game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lapras-inc/gather-tag-game/issues"
+  },
+  "homepage": "https://github.com/lapras-inc/gather-tag-game#readme",
+  "devDependencies": {
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@gathertown/gather-game-client": "^34.0.0",
+    "isomorphic-ws": "^4.0.1",
+    "ws": "^8.5.0"
+  }
+}
