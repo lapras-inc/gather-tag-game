@@ -4,7 +4,8 @@
   "description": "* env vars   * GATHER_API_KEY   * GATHER_SPACE_ID",
   "main": "index.js",
   "scripts": {
-    "start": "node -r ts-node/register src/app.ts"
+    "start": "node -r ts-node/register src/app.ts",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,9 @@
   },
   "homepage": "https://github.com/lapras-inc/gather-tag-game#readme",
   "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
   },
