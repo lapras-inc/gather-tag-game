@@ -23,10 +23,12 @@ game.connect();
 
 type GameState = {
   oniId: string | null
+  lastOniChangedAt: number | null
 }
 
 const gameState: GameState = {
-  oniId: null
+  oniId: null,
+  lastOniChangedAt: null,
 }
 
 // 鬼の見た目
@@ -50,6 +52,8 @@ const setInitialOni = (initialOniId: string, initialHumanIds: string[]) => {
 game.subscribeToConnection(
   (connected) => {
     console.log('is connected: ', connected)
+    // 詳細ログが出るようになる
+    // game.debug(true)
     game.subscribeToEvent('info', console.info)
     game.subscribeToEvent('warn', console.warn)
     game.subscribeToEvent('error', console.error)
@@ -74,13 +78,18 @@ game.subscribeToConnection(
           // TODO: reset
           console.log('reset !!!! by player: ', player.name)
           const initialHumans = playerIds.filter(_playerId => _playerId !== playerId)
+          // 鬼初期化
           setInitialOni(playerId, initialHumans)
+          gameState.lastOniChangedAt = new Date().getTime()
           return
         }
       }
 
-
-      const oni = game.players[gameState.oniId!]
+      if (gameState.oniId === null) {
+        console.log('oniId is null')
+        return
+      }
+      const oni = game.players[gameState.oniId]
       playerIds.forEach(playerId => {
         if(playerId === gameState.oniId) return
         const human = game.players[playerId]
@@ -94,11 +103,25 @@ game.subscribeToConnection(
 
         // rが1以下だったらタッチ有効範囲内
         if (r <= 1) {
+          const now = new Date().getTime()
+          // 鬼交代の後に一定時間の間は鬼交代を無効にする
+          if (now - gameState.lastOniChangedAt! < 500) {
+            console.log(`madadayo!!! oni: ${oni.name}, human: ${human.name}`)
+            return
+          }
+
           console.log(`${human.name}, out !!!!!`)
           // human を鬼にする (鬼交代)
           game.setOutfitString(oniOutfitString, playerId)
           game.setOutfitString(humanOutFitString, gameState.oniId!)
           gameState.oniId = playerId
+
+          const newOni = game.players[gameState.oniId]
+          // 最後に鬼交代した時刻を保存
+          gameState.lastOniChangedAt = now
+          // 鬼をスタート地点に移動させる
+          game.teleport('rw-6', resetX, resetY, gameState.oniId!)
+
         }
       })
     })
