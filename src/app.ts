@@ -1,4 +1,4 @@
-import { Game } from '@gathertown/gather-game-client';
+import { Game, SpriteDirectionEnum_ENUM } from '@gathertown/gather-game-client';
 global.WebSocket = require("isomorphic-ws");
 
 console.log('Hello World');
@@ -90,6 +90,7 @@ game.subscribeToConnection(
         return
       }
       const oni = game.players[gameState.oniId]
+
       playerIds.forEach(playerId => {
         if(playerId === gameState.oniId) return
         const human = game.players[playerId]
@@ -99,10 +100,50 @@ game.subscribeToConnection(
 
         // 鬼との距離を出す
         const r = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-        console.log(`${human.name} to oni: ${xDiff} ${yDiff}, r: ${r}`)
 
+        // タッチ判定の処理
         // rが1以下だったらタッチ有効範囲内
         if (r <= 1) {
+          // TODO 鬼が向いている方向に相手がいるかのチェック
+          console.log(`oni x: ${oni.x}, y: ${oni.y}`)
+          console.log(`human x: ${human.x}, y: ${human.y}, name: ${human.name}`)
+          // 上
+          if ([SpriteDirectionEnum_ENUM.Up, SpriteDirectionEnum_ENUM.UpAlt].includes(oni.direction)) {
+            console.log('oni UP.')
+            if (!(oni.y > human.y)) {
+              // player が oni 以下にいる場合
+              console.log('oni UP. skip')
+              return
+            }
+          }
+          // 下
+          if ([SpriteDirectionEnum_ENUM.Down, SpriteDirectionEnum_ENUM.DownAlt].includes(oni.direction)) {
+            console.log('oni Down.')
+            if (!(oni.y < human.y)) {
+              // player が oni 以上にいる場合
+              console.log('oni Down. skip')
+              return
+            }
+          }
+          // 左
+          if ([SpriteDirectionEnum_ENUM.Left, SpriteDirectionEnum_ENUM.LeftAlt].includes(oni.direction)) {
+            console.log('oni Left.')
+            if (oni.x <= human.x) {
+              // player が oni より右にいる場合
+              console.log('oni Left. skip')
+              return
+            }
+          }
+          // 右
+          if ([SpriteDirectionEnum_ENUM.Right, SpriteDirectionEnum_ENUM.RightAlt].includes(oni.direction)) {
+            console.log('oni Right.')
+            if (oni.x >= human.x) {
+              // player が oni より左にいる場合
+              console.log('oni Right. skip')
+              return
+            }
+          }
+
           const now = new Date().getTime()
           // 鬼交代の後に一定時間の間は鬼交代を無効にする
           if (now - gameState.lastOniChangedAt! < 500) {
@@ -120,7 +161,7 @@ game.subscribeToConnection(
           // 最後に鬼交代した時刻を保存
           gameState.lastOniChangedAt = now
           // 鬼をスタート地点に移動させる
-          game.teleport('rw-6', resetX, resetY, gameState.oniId!)
+          // game.teleport('rw-6', resetX, resetY, gameState.oniId!)
 
         }
       })
